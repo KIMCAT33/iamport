@@ -34,8 +34,8 @@ app.get('/', (request, response) => {
 
 
 app.post("/certifications", async (request, response) => {
-  const { imp_uid } = request.body;
-  //const imp_uid = request.body.data.imp_uid; // request의 body에서 imp_uid 추출
+ 
+  const imp_uid = request.body.data.imp_uid; // request의 body에서 imp_uid 추출
 
   try {
     // 인증 토큰 발급 받기
@@ -141,7 +141,7 @@ app.post('/check', function(request, response){
         if(err){
           console.log("지급 유저의 count를 갱신하는 데 실패하였습니다.");
         } else{
-          response.json({status: "Success", message: "마스크 보급을 완료하였습니다."});
+          response.json({status: "Success", message: "마스크 보급을 완료하였습니다.", name: userInfo.name});
         }
       });
     }

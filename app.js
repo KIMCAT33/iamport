@@ -32,8 +32,8 @@ app.get('/', (request, response) => {
 
 
 app.post("/certifications", async (request, response) => {
-
-  const imp_uid = request.body.data.imp_uid; // request의 body에서 imp_uid 추출
+  const {imp_uid} = request.body;
+  //const imp_uid = request.body.data.imp_uid; // request의 body에서 imp_uid 추출
 
   try {
     // 인증 토큰 발급 받기
@@ -61,9 +61,9 @@ app.post("/certifications", async (request, response) => {
     const { unique_key, name, gender, birthday } = certificationsInfo;
 
     const phone = unique_key;
-    const name = name;
+    const name_ = name;
     const birth = birthday;
-
+    
     // DB에 있는지 파악 
     // DB 조회 시 없으면, 사용자, 이름, 전화번호 등 추가 후 date, 업데이트 하고 randomNumber return
     // DB 조회 시 있으면, count > 1 이면 date 확인 후 현재 시간으로부터 30분 이상 지나지 않았으면 error 리턴, 
@@ -75,7 +75,7 @@ app.post("/certifications", async (request, response) => {
         var number = getRandomInt(0, 9999);
         namyangsuModel.create({
           phone: phone,
-          name: name,
+          name: name_,
           birth: birth,
           randomNumber: number,
           data: Date.now(), function(err, result) {
@@ -95,7 +95,7 @@ app.post("/certifications", async (request, response) => {
         response.json({state: "normal"});
       }
     });
-
+    
   } catch (e) {
   console.error(e);
 }

@@ -143,7 +143,7 @@ app.post('/check', function (request, response) {
 // 키오스크에서 유저의 randomNumber가 맞는지 검증
 app.post('/find', function (request, response) {
   randomNumber_ = request.body.randomNumber;
-  var query = { randomNumber: randomNumber };
+  var query = { randomNumber: randomNumber_ };
   namyangsuModel.findOne(query, function (err, userInfo) {
     if (err) {
       console.log("키오스크에서 유저, 인증번호 체크 중 에러 발생");

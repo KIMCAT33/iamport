@@ -120,7 +120,7 @@ app.post("/certifications", async (request, response) => {
 app.post('/check', function (request, response) {
   // request로 request.body.randomNumber
   randomNumber_ = request.body.randomNumber;
-  var query = { randomNumber: randomNumber };
+  var query = { randomNumber: randomNumber_ };
   namyangsuModel.findOne(query, function (err, userInfo) {
     if (err) {
       console.log("지급 유저를 찾는데 실패하였습니다.");

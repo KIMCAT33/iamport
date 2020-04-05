@@ -5,7 +5,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const AWS = require('aws-sdk');
 const axios = require('axios');
-const mongoose = require('./config/database');
+const mongoose = require('./.config/database');
 
 // random 숫자 생성기
 function getRandomInt(min, max) {
@@ -34,8 +34,8 @@ app.get('/', (request, response) => {
 
 
 app.post("/certifications", async (request, response) => {
- 
-  const imp_uid = request.body.data.imp_uid; // request의 body에서 imp_uid 추출
+  const { imp_uid } = request.body;
+  //const imp_uid = request.body.data.imp_uid; // request의 body에서 imp_uid 추출
 
   try {
     // 인증 토큰 발급 받기
@@ -71,52 +71,42 @@ app.post("/certifications", async (request, response) => {
     // DB 조회 시 있으면, count > 1 이면 date 확인 후 현재 시간으로부터 30분 이상 지나지 않았으면 error 리턴, 
     //                   count < 0 이면 count 증가 후 date 업데이트 후, randomNumber return 
     var query = { phone: phone }
-    namyangsuModel.findOne(query, function (err, userInfo) {
-      if (err) {
-        console.log("첫 에러 발생");
-      } else {
-        if (userInfo == undefined) {
-          // DB 조회 시 사용자가 없으면
-          console.log("여기 까지 옴");
-          var number = getRandomInt(0, 9999);
-          namyangsuModel.create({
-            phone: phone,
-            name: name_,
-            birth: birth,
-            randomNumber: number,
-            date: new Date(), function(err, result) {
-              if (err) {
-                console.log("사용자가 없어서 등록 중 오류가 생겼다.");
-                next(err);
-              }
-              else {
-                console.log(`사용자가 처음 등록 후 인증 번호 ${number}를 받았다. `);
-                response.json({
-                  status: "success",
-                  randomNumber: number,
-                  message: "사용자가 처음 등록 후 인증 번호를 받았습니다."
-                });
-              }
-            }
-          })
-        } else { // DB 조회 시 사용자가 있으면
-          console.log("사용자가 있다.");
-          
-          if (userInfo.count < 1) { // 지급 회수가 1번 이하인 경우에만 인증번호 지급
-            number = getRandomInt(0, 9999);
-            var now = new Date();
-            namyangsuModel.findOneAndUpdate(query, {randomNumber: number, date : now }, function(err, userInfo){
-              if(err){
-                console.log("지급 회수가 1번 이하인 경우 인증번호 지급 실패");
-              } else{
-                console.log(`지급 회수 1번 이하인 경우 인증 번호 ${number} 발급 완료`);
-                response.json({status: "success", message:"지급 회수 1번 이하인 경우 인증 번호 발급 완료", randomNumber: number});
-              }
+    namyangsuModel.findOne(query).then(function (userInfo) {
+
+
+      if (userInfo == undefined) {
+
+        // DB 조회 시 사용자가 없으면
+        var number = getRandomInt(0, 9999);
+        var new_date = new Date();
+        namyangsuModel.create({
+          phone: phone,
+          name: name_,
+          birth: birth,
+          randomNumber: number,
+          date: new_date}, function(result) {
+            response.json({
+              status: "success", randomNumber: number, message: "사용자가 처음 등록 후 인증 번호를 받았습니다.", phone: phone
             });
-          }else{
-            console.log("지급 회수가 1번 초과하였다.");
-            response.json({status:"fail", message:"지급 회수 1번 초과인 사용자입니다."});
           }
+        );
+      } else { // DB 조회 시 사용자가 있으면
+        console.log("사용자가 있다.");
+
+        if (userInfo.count < 1) { // 지급 회수가 1번 이하인 경우에만 인증번호 지급
+          number = getRandomInt(0, 9999);
+          var now = new Date();
+          namyangsuModel.findOneAndUpdate(query, { randomNumber: number, date: now }, function (err, userInfo) {
+            if (err) {
+              console.log("지급 회수가 1번 이하인 경우 인증번호 지급 실패");
+            } else {
+              console.log(`지급 회수 1번 이하인 경우 인증 번호 ${number} 발급 완료`);
+              response.json({ status: "success", message: "지급 회수 1번 이하인 경우 인증 번호 발급 완료", randomNumber: number, phone: phone });
+            }
+          });
+        } else {
+          console.log("지급 회수가 1번 초과하였다.");
+          response.json({ status: "fail", message: "지급 회수 1번 초과인 사용자입니다." });
         }
       }
     });
@@ -127,27 +117,45 @@ app.post("/certifications", async (request, response) => {
 
 });
 
-app.post('/check', function(request, response){
+app.post('/check', function (request, response) {
   // request로 request.body.randomNumber
-  randomNumber_ = request.body.randomNumber;  
-  var query = {randomNumber: randomNumber_};
-  namyangsuModel.findOne(query, function(err, userInfo){
-    if(err){
+  randomNumber_ = request.body.randomNumber;
+  var query = { randomNumber: randomNumber };
+  namyangsuModel.findOne(query, function (err, userInfo) {
+    if (err) {
       console.log("지급 유저를 찾는데 실패하였습니다.");
     }
-    else{
+    else {
       var updateCount = userInfo.count + 1;
-      namyangsuModel.findOneAndUpdate(query, {count: updateCount, randomNumber: 10000}, function(err, newUserInfo){
-        if(err){
+      namyangsuModel.findOneAndUpdate(query, { count: updateCount, randomNumber: 10000 }, function (err, newUserInfo) {
+        if (err) {
           console.log("지급 유저의 count를 갱신하는 데 실패하였습니다.");
-        } else{
-          response.json({status: "Success", message: "마스크 보급을 완료하였습니다.", name: userInfo.name});
+        } else {
+          response.json({ status: "Success", message: "마스크 보급을 완료하였습니다.", name: userInfo.name });
         }
       });
     }
   });
 
-  
+
+});
+
+// 키오스크에서 유저의 randomNumber가 맞는지 검증
+app.post('/find', function (request, response) {
+  randomNumber_ = request.body.randomNumber;
+  var query = { randomNumber: randomNumber };
+  namyangsuModel.findOne(query, function (err, userInfo) {
+    if (err) {
+      console.log("키오스크에서 유저, 인증번호 체크 중 에러 발생");
+    } else {
+      if (userInfo == undefined) {
+        response.json({ status: "fail", message: "등록되지 않은 인증번호 정보입니다.", name: userInfo.name, randomNumber: randomNumber_ });
+      } else {
+        response.json({ status: "Success", message: "등록된 인증번호 입니다.", name: userInfo.name, randomNumber: randomNumber_ });
+      }
+    }
+
+  });
 });
 
 app.listen(port, function () {

@@ -34,9 +34,9 @@ app.get('/', (request, response) => {
 
 
 app.post("/certifications", async (request, response) => {
-  const { imp_uid, UserPhone } = request.body;
-  //const imp_uid = request.body.data.imp_uid; // request의 body에서 imp_uid 추출
-
+  //const { imp_uid, UserPhone } = request.body;
+  const imp_uid = request.body.data.imp_uid; // request의 body에서 imp_uid 추출
+  const UserPhone = request.body.data.UserPhone;
   try {
     // 인증 토큰 발급 받기
     const getToken = await axios({

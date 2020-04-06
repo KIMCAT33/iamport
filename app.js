@@ -146,10 +146,10 @@ app.post('/find', function (request, response) {
   var query = { randomNumber: randomNumber_ };
   namyangsuModel.findOne(query, function (err, userInfo) {
     if (err) {
-      console.log("키오스크에서 유저, 인증번호 체크 중 에러 발생");
+      next(err);
     } else {
       if (userInfo == undefined) {
-        response.json({ status: "fail", message: "등록되지 않은 인증번호 정보입니다.", name: userInfo.name, randomNumber: randomNumber_ });
+        response.json({ status: "fail", message: "등록되지 않은 인증번호 정보입니다."});
       } else {
         response.json({ status: "Success", message: "등록된 인증번호 입니다.", name: userInfo.name, randomNumber: randomNumber_ });
       }

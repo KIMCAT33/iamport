@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 // 스키마 정의
 const Schema = mongoose.Schema;
 
-const Namyangsu = new Schema({
+const KioskUser = new Schema({
     phone: {
         type: String,
         trim: true,
@@ -40,4 +40,4 @@ const Namyangsu = new Schema({
     }
 });
 
-module.exports = mongoose.model('Namyangsu', Namyangsu)
+module.exports = mongoose.model('KioskUser', KioskUser)

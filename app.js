@@ -122,17 +122,13 @@ app.post('/check', function (request, response) {
   randomNumber_ = request.body.randomNumber;
   var query = { randomNumber: randomNumber_ };
   namyangsuModel.findOne(query, function (err, userInfo) {
-    if (err) {
-      console.log("지급 유저를 찾는데 실패하였습니다.");
+    if(userInfo==undefined){
+      response.json({status:"fail", message: "투출 시점에서 등록되지 않은 사용자입니다."});
     }
     else {
       var updateCount = userInfo.count + 1;
       namyangsuModel.findOneAndUpdate(query, { count: updateCount, randomNumber: 10000 }, function (err, newUserInfo) {
-        if (err) {
-          console.log("지급 유저의 count를 갱신하는 데 실패하였습니다.");
-        } else {
           response.json({ status: "Success", message: "마스크 보급을 완료하였습니다.", name: userInfo.name });
-        }
       });
     }
   });

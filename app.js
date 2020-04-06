@@ -34,7 +34,7 @@ app.get('/', (request, response) => {
 
 
 app.post("/certifications", async (request, response) => {
-  const { imp_uid } = request.body;
+  const { imp_uid, UserPhone } = request.body;
   //const imp_uid = request.body.data.imp_uid; // request의 body에서 imp_uid 추출
 
   try {
@@ -60,9 +60,9 @@ app.post("/certifications", async (request, response) => {
     });
     const certificationsInfo = getCertifications.data.response; // 조회한 인증 정보
 
-    const { unique_key, name, gender, birthday } = certificationsInfo;
+    const { name, gender, birthday } = certificationsInfo;
     console.log(certificationsInfo);
-    const phone = unique_key;
+    const phone = UserPhone;
     const name_ = name;
     const birth = birthday;
 

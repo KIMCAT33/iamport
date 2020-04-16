@@ -66,48 +66,19 @@ app.post("/certifications", async (request, response) => {
     const name_ = name;
     const birth = birthday;
 
-    // DB에 있는지 파악 
-    // DB 조회 시 없으면, 사용자, 이름, 전화번호 등 추가 후 date, 업데이트 하고 randomNumber return
-    // DB 조회 시 있으면, count > 1 이면 date 확인 후 현재 시간으로부터 30분 이상 지나지 않았으면 error 리턴, 
-    //                   count < 0 이면 count 증가 후 date 업데이트 후, randomNumber return 
     var query = { phone: phone }
     namyangsuModel.findOne(query).then(function (userInfo) {
-
-
       if (userInfo == undefined) {
-
         // DB 조회 시 사용자가 없으면
-        var number = getRandomInt(0, 9999);
-        var new_date = new Date();
-        namyangsuModel.create({
-          phone: phone,
-          name: name_,
-
-          birth: birth,
-          randomNumber: number,
-          date: new_date
-        }, function (result) {
-          response.json({
-            status: "success", randomNumber: number, message: "사용자가 처음 등록 후 인증 번호를 받았습니다.", phone: phone
-          });
-        }
-        );
+        response.json({ status: "fail", message: "지급 대상자가 아닙니다." });
       } else { // DB 조회 시 사용자가 있으면
-        console.log("사용자가 있다.");
-
         if (userInfo.count < 1) { // 지급 회수가 1번 이하인 경우에만 인증번호 지급
           number = getRandomInt(0, 9999);
           var now = new Date();
           namyangsuModel.findOneAndUpdate(query, { randomNumber: number, date: now }, function (err, userInfo) {
-            if (err) {
-              console.log("지급 회수가 1번 이하인 경우 인증번호 지급 실패");
-            } else {
-              console.log(`지급 회수 1번 이하인 경우 인증 번호 ${number} 발급 완료`);
-              response.json({ status: "success", message: "지급 회수 1번 이하인 경우 인증 번호 발급 완료", randomNumber: number, phone: phone });
-            }
+            response.json({ status: "success", message: "지급 회수 1번 이하인 경우 인증 번호 발급 완료", randomNumber: number, phone: phone });
           });
         } else {
-          console.log("지급 회수가 1번 초과하였다.");
           response.json({ status: "fail", message: "지급 회수 1번 초과인 사용자입니다." });
         }
       }
@@ -131,7 +102,7 @@ app.post('/check', function (request, response) {
     else {
       var updateCount = userInfo.count + 1;
       namyangsuModel.findOneAndUpdate(query, { count: updateCount, randomNumber: 10000, flag: flag }, function (err, newUserInfo) {
-        response.json({ status: "Success", message: "마스크 보급을 완료하였습니다.", name: userInfo.name });
+        response.json({ status: "success", message: "마스크 보급을 완료하였습니다.", name: userInfo.name });
       });
     }
   });
@@ -150,7 +121,7 @@ app.post('/find', function (request, response) {
       if (userInfo == undefined) {
         response.json({ status: "fail", message: "등록되지 않은 인증번호 정보입니다." });
       } else {
-        response.json({ status: "Success", message: "등록된 인증번호 입니다.", name: userInfo.name, randomNumber: randomNumber_ });
+        response.json({ status: "success", message: "등록된 인증번호 입니다.", name: userInfo.name, randomNumber: randomNumber_ });
       }
     }
 
@@ -162,13 +133,13 @@ app.post('/delete', function (request, response) {
   var phone = request.body.phone;
   var query = { phone: phone };
   namyangsuModel.findOneAndDelete(query, function (err, userInfo) {
-    if(err){
+    if (err) {
       next(err);
     }
-    if(userInfo==undefined){
-      response.json({status:"fail", message:"등록되지 않은 유저 정보이므로 삭제할 수 없습니다."});
-    }else{
-      response.json({status:"Success", message: "유저 정보를 삭제하였습니다.", data:userInfo});
+    if (userInfo == undefined) {
+      response.json({ status: "fail", message: "등록되지 않은 유저 정보이므로 삭제할 수 없습니다." });
+    } else {
+      response.json({ status: "success", message: "유저 정보를 삭제하였습니다.", data: userInfo });
     }
   });
 });

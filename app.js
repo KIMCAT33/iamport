@@ -30,6 +30,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // 서버 동작 확인
 app.get('/', (request, response) => {
   response.send("success");
+  console.log("success");
 })
 
 

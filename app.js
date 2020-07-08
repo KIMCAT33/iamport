@@ -145,6 +145,6 @@ app.post('/delete', function (request, response) {
   });
 });
 
-app.listen(port, function () {
+app.listen(port,'0.0.0.0', function () {
   console.log(`Node server listening on port ${port}`);
 })

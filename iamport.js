@@ -31,7 +31,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.get('/', (request, response) => {
   response.send("success");
   console.log("success");
-})
+});
 
 
 app.post("/certifications", async (request, response) => {
@@ -147,4 +147,4 @@ app.post('/delete', function (request, response) {
 
 app.listen(port,'0.0.0.0', function () {
   console.log(`Node server listening on port ${port}`);
-})
+});

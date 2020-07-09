@@ -13,7 +13,7 @@ function getRandomInt(min, max) {
 }
 
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 5000;
 
 // DB 셋팅
 mongoose.connection.on('error', console.error.bind(console, 'MongoDB connection error:'));
